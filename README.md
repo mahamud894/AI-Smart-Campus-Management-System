@@ -1,4 +1,29 @@
-# AI Smart Campus System
+<div align="center">
+
+# 🎓 AI Smart Campus System
+
+**Academic management and student-success platform with student, faculty and admin workspaces and server-side AI.**
+
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?logo=bootstrap&logoColor=white)
+![MUI](https://img.shields.io/badge/MUI-9-007FFF?logo=mui&logoColor=white)
+![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?logo=laravel&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-database-4479A1?logo=mysql&logoColor=white)
+![Sanctum](https://img.shields.io/badge/Auth-Laravel_Sanctum-FF2D20?logo=laravel&logoColor=white)
+
+![Gemini](https://img.shields.io/badge/AI-Google_Gemini-8E75B2?logo=googlegemini&logoColor=white)
+![OpenAI](https://img.shields.io/badge/AI-OpenAI-412991?logo=openai&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
+![Render](https://img.shields.io/badge/Deploy-Render-46E3B7?logo=render&logoColor=white)
+![Backend tests](https://img.shields.io/badge/backend_tests-85_passing-brightgreen?logo=php&logoColor=white)
+![Frontend tests](https://img.shields.io/badge/frontend_tests-12_passing-brightgreen?logo=vitest&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+[Screenshots](#screenshots) · [Features](#implemented-features) · [AI Integration](#ai-integration) · [Local Setup](#local-setup) · [Verification](#verification)
+
+</div>
 
 An academic management and student-success platform for Northern University of Business and Technology, Khulna (NUBTK). The application combines a React frontend, a Laravel REST API, MySQL, role-based access control, academic monitoring, campus services, and server-side AI integrations.
 
