@@ -1,0 +1,1 @@
+# AI-Smart-Campus-Management-System
