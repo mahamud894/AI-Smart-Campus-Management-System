@@ -1,16 +1,23 @@
-# Final screenshot index
+# Screenshot index
 
-Existing screenshots are retained as historical UI evidence. Before final submission, capture current production-build screens using demo data and descriptive filenames:
+Current captures (November 2026) were taken from a local build with the seeded demo accounts only. Desktop captures are 1440x900; mobile captures are 390x844.
 
-- `01-landing-page.png`
-- `02-login.png`
-- `03-student-dashboard.png`
-- `04-faculty-dashboard.png`
-- `05-admin-dashboard.png`
-- `06-academic-management.png`
-- `07-student-monitoring.png`
-- `08-risk-analysis.png`
-- `09-notice-management.png`
-- `10-profile.png`
+| File | Screen |
+| --- | --- |
+| `01-landing-page.png` | Public landing page |
+| `02-login.png` | Sign in |
+| `03-student-dashboard.png` | Student dashboard |
+| `04-faculty-dashboard.png` | Faculty dashboard |
+| `05-admin-dashboard.png` | Admin dashboard |
+| `06-academic-management.png` | Academic data workspace |
+| `07-student-monitoring.png` | Student monitoring |
+| `08-risk-analysis.png` | Risk alerts |
+| `09-notice-management.png` | Faculty notice management |
+| `10-profile.png` | Profile |
+| `11-class-routine.png` | Campus services: weekly class routine |
+| `12-course-recommendations.png` | Course recommendations |
+| `13-ai-assistant.png` | AI Assistant |
+| `14-mobile-dashboard.png` | Mobile dashboard |
+| `15-mobile-ai-assistant.png` | Mobile AI Assistant |
 
-Capture at 1440x900 (desktop) and at least one mobile viewport. Do not expose passwords, API keys, tokens, private phone numbers, or real student records. The current folder still contains legacy July 6 captures; review them visually before final submission.
+The `Screenshot 2026-07-06 *.png`, `pc.png`, `pn.png` and `tab.png` files are earlier captures kept as historical evidence.

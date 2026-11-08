@@ -34,6 +34,41 @@ class NoticeManagementTest extends TestCase
         ]);
     }
 
+    public function test_faculty_sent_scope_lists_their_own_student_notices(): void
+    {
+        $faculty = User::factory()->create(['role' => 'faculty', 'department' => 'Computer Science & Engineering']);
+        $otherFaculty = User::factory()->create(['role' => 'faculty', 'department' => 'Computer Science & Engineering']);
+        Sanctum::actingAs($faculty);
+
+        $this->postJson('/api/notices', [
+            'title' => 'Project presentation schedule',
+            'description' => 'Presentations start next week.',
+            'category' => 'Academic',
+            'audience' => 'Department',
+            'target_department' => 'Computer Science & Engineering',
+        ])->assertCreated();
+
+        Notice::create([
+            'user_id' => $otherFaculty->id,
+            'title' => 'Another faculty notice',
+            'description' => 'Not authored by the signed-in faculty member.',
+            'category' => 'Academic',
+            'audience' => 'All',
+            'publish_date' => now(),
+        ]);
+
+        // The student-targeted notice is not in the faculty member's inbox...
+        $this->getJson('/api/notices')
+            ->assertOk()
+            ->assertJsonMissing(['title' => 'Project presentation schedule']);
+
+        // ...but it is listed for them to manage, without other authors' notices.
+        $this->getJson('/api/notices?scope=sent')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.title', 'Project presentation schedule');
+    }
+
     public function test_admin_can_list_and_delete_notices(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

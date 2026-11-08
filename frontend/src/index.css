@@ -4401,3 +4401,123 @@ footer {
 .assistant-composer textarea.form-control {
   resize: none;
 }
+
+/* ------------------------------------------------------------------
+   UI polish (Nov 2026)
+   ------------------------------------------------------------------ */
+
+/* Brand monogram shown when the campus logo cannot be loaded */
+.brand-monogram {
+  display: inline-grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  border: 1px solid #dbeafe;
+  border-radius: 0.8rem;
+  color: #1d4ed8;
+  background: linear-gradient(145deg, #eff6ff, #ffffff);
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+/* The generic ".sidebar-user-card span" rule was also styling the avatar,
+   pushing the initials into a corner in grey. */
+.sidebar-user-card .user-avatar {
+  display: inline-grid;
+  margin-top: 0;
+  color: #fff;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+/* Sidebar: let the longest labels wrap instead of being cut off, and keep
+   every item visible on common laptop heights. */
+.app-sidebar-nav {
+  gap: 0.15rem;
+  scrollbar-width: thin;
+}
+
+.app-nav-link {
+  min-height: 42px;
+  padding-block: 0.55rem;
+}
+
+.app-nav-label {
+  overflow: visible;
+  white-space: normal;
+  line-height: 1.25;
+}
+
+/* Keep page content clear of the floating AI Assistant button */
+.app-content {
+  padding-bottom: 6rem;
+}
+
+/* Small screens: the composer stacks; Bootstrap's input-group width:1%
+   was squeezing the textarea to ~30px wide. */
+@media (max-width: 575.98px) {
+  .assistant-composer.input-group > textarea.form-control {
+    width: 100% !important;
+    flex: 0 0 auto;
+    min-height: 88px;
+  }
+
+  .ai-assistant-floating-button {
+    right: 16px;
+    bottom: 16px;
+  }
+}
+
+/* Notice cards: tag rows wrap inside the card on narrow screens */
+.admin-notice-card {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.admin-notice-card .d-flex {
+  align-items: center;
+  flex-wrap: wrap;
+  row-gap: 0.4rem;
+}
+
+/* Admin: department distribution as labelled horizontal rows */
+.admin-department-rows {
+  display: grid;
+  gap: 1.1rem;
+  padding-top: 0.5rem;
+}
+
+.admin-department-row-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  margin-bottom: 0.45rem;
+}
+
+.admin-department-row-head strong {
+  color: #172033;
+  font-size: 0.92rem;
+}
+
+.admin-department-row-head span {
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.admin-department-track {
+  display: flex;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #eef2f7;
+}
+
+.admin-department-track .is-students {
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+}
+
+.admin-department-track .is-faculty {
+  background: linear-gradient(90deg, #34d399, #10b981);
+}

@@ -21,8 +21,8 @@ const deliveryLabel = (status) => ({ sent: 'Sent', partial: 'Partially sent', fa
 const normalizeNotice = (notice) => ({
   ...notice,
   date: (notice.publish_date || notice.created_at || '').slice(0, 10),
-  tags: [notice.category || 'Academic', notice.audience || 'All', notice.target_department, notice.target_role, notice.target_semester]
-    .filter(Boolean),
+  tags: [...new Set([notice.category || 'Academic', notice.audience || 'All', notice.target_department, notice.target_role, notice.target_semester]
+    .filter(Boolean))],
 });
 
 function ManageNoticesPage() {
@@ -47,7 +47,7 @@ function ManageNoticesPage() {
 
     try {
       const [noticeResponse, departmentResponse] = await Promise.all([
-        getNotices(),
+        getNotices(1, 'sent'),
         getDepartments(),
       ]);
       setNotices((noticeResponse.data.data || []).map(normalizeNotice));
@@ -183,7 +183,7 @@ function ManageNoticesPage() {
         )}
 
         <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-          <span className="admin-total-count">{notices.length} notices total</span>
+          <span className="admin-total-count">{notices.length} {notices.length === 1 ? 'notice' : 'notices'} total</span>
           <button type="button" className="btn btn-primary px-4" onClick={() => { setShowForm((open) => !open); setEditingNotice(null); setForm(emptyForm); }}>
             {showForm ? 'Cancel' : '+ New Notice'}
           </button>

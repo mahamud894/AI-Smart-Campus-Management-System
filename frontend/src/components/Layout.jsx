@@ -5,7 +5,18 @@ import { StatusAlert } from './Feedback';
 import { getDashboardPath } from '../utils/routes';
 import { getNotices, getPendingUsers } from '../services/api';
 
-const CAMPUS_LOGO_URL = 'https://nubtkhulna.ac.bd/ter/assets/img/adminica_logo_blue-trans.png';
+// Put the official logo at frontend/public/nubtk-logo.png to serve it locally.
+// If neither the local nor the university-hosted file loads, a monogram is shown.
+const CAMPUS_LOGO_SOURCES = ['/nubtk-logo.png', 'https://nubtkhulna.ac.bd/ter/assets/img/adminica_logo_blue-trans.png'];
+const COUNT_CACHE_MS = 20000;
+// Layout is mounted by every page, so share the badge counts between mounts
+// instead of calling the API again on every navigation.
+const countCache = { unread: { value: 0, at: 0, key: null }, pending: { value: 0, at: 0, key: null } };
+const readCache = (name, key) => {
+  const entry = countCache[name];
+  return entry.key === key && Date.now() - entry.at < COUNT_CACHE_MS ? entry.value : null;
+};
+const writeCache = (name, key, value) => { countCache[name] = { value, at: Date.now(), key }; };
 const iconPaths = {
   home: 'M3 10.5 12 3l9 7.5M5 9v11h5v-6h4v6h5V9',
   dashboard: 'M4 4h6v6H4V4Zm10 0h6v10h-6V4ZM4 14h6v6H4v-6Zm10 4h6v2h-6v-2Z',
@@ -33,10 +44,14 @@ function NavigationIcon({ name }) {
 }
 
 function Brand() {
+  const [logoIndex, setLogoIndex] = useState(0);
+  const logoSrc = CAMPUS_LOGO_SOURCES[logoIndex];
   return (
     <Link className="navbar-brand fw-bold text-primary d-flex align-items-center gap-2 m-0" to="/">
       <span className="brand-mark d-inline-flex align-items-center justify-content-center" aria-hidden="true">
-        <img src={CAMPUS_LOGO_URL} alt="" />
+        {logoSrc
+          ? <img src={logoSrc} alt="" onError={() => setLogoIndex((index) => index + 1)} />
+          : <span className="brand-monogram">N</span>}
       </span>
       <span className="brand-text">NUBTK Campus</span>
     </Link>
@@ -59,8 +74,9 @@ function Layout({ children, title, subtitle }) {
   const [loggingOut, setLoggingOut] = useState(false);
   const [flash, setFlash] = useState(null);
   const profilePhoto = user?.profile_photo_url || '';
-  const [unreadNotices, setUnreadNotices] = useState(0);
-  const [pendingApprovals, setPendingApprovals] = useState(0);
+  const cacheKey = user?.id ?? null;
+  const [unreadNotices, setUnreadNotices] = useState(() => readCache('unread', cacheKey) ?? 0);
+  const [pendingApprovals, setPendingApprovals] = useState(() => readCache('pending', cacheKey) ?? 0);
   const isFacultyUser = user?.role === 'faculty';
   const isAdminUser = user?.role === 'admin';
   const publicNavItems = [
@@ -101,7 +117,9 @@ function Layout({ children, title, subtitle }) {
     && internalRoutes.some((route) => location.pathname.startsWith(route));
   const currentSection = location.pathname === '/profile'
     ? 'My Profile'
-    : [...appNavItems].sort((a, b) => b.to.length - a.to.length).find((item) => location.pathname.startsWith(item.to))?.label || 'Workspace';
+    : location.pathname === '/ai-assistant'
+      ? 'AI Assistant'
+      : [...appNavItems].sort((a, b) => b.to.length - a.to.length).find((item) => location.pathname.startsWith(item.to))?.label || 'Workspace';
   const userInitials = user?.name
     ?.split(' ')
     .map((part) => part[0])
@@ -119,11 +137,14 @@ function Layout({ children, title, subtitle }) {
     }
 
     let active = true;
-    const refreshUnread = () => {
+    const refreshUnread = (force = true) => {
+      if (!force && readCache('unread', user.id) !== null) return;
       getNotices()
         .then((response) => {
           if (!active) return;
-          setUnreadNotices(response.data.meta?.unread || 0);
+          const unread = response.data.meta?.unread || 0;
+          writeCache('unread', user.id, unread);
+          setUnreadNotices(unread);
         })
         .catch(() => {
           if (active) setUnreadNotices(0);
@@ -138,7 +159,7 @@ function Layout({ children, title, subtitle }) {
       if (document.visibilityState === 'visible') refreshUnread();
     };
 
-    refreshUnread();
+    refreshUnread(false);
     const refreshTimer = window.setInterval(refreshUnread, 30000);
     window.addEventListener('focus', refreshUnread);
     window.addEventListener('notice-read-updated', handleNoticeRead);
@@ -160,10 +181,13 @@ function Layout({ children, title, subtitle }) {
     }
 
     let active = true;
-    const refreshPendingApprovals = () => {
+    const refreshPendingApprovals = (force = true) => {
+      if (!force && readCache('pending', user?.id) !== null) return;
       getPendingUsers()
         .then((response) => {
-          if (active) setPendingApprovals((response.data.data || []).length);
+          const pending = (response.data.data || []).length;
+          writeCache('pending', user?.id, pending);
+          if (active) setPendingApprovals(pending);
         })
         .catch(() => {
           if (active) setPendingApprovals(0);
@@ -173,7 +197,7 @@ function Layout({ children, title, subtitle }) {
       if (document.visibilityState === 'visible') refreshPendingApprovals();
     };
 
-    refreshPendingApprovals();
+    refreshPendingApprovals(false);
     const refreshTimer = window.setInterval(refreshPendingApprovals, 30000);
     window.addEventListener('focus', refreshPendingApprovals);
     window.addEventListener('pending-users-updated', refreshPendingApprovals);
@@ -185,7 +209,7 @@ function Layout({ children, title, subtitle }) {
       window.removeEventListener('pending-users-updated', refreshPendingApprovals);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [isAdminUser, isAuthenticated]);
+  }, [isAdminUser, isAuthenticated, user?.id]);
   useEffect(() => {
     if (!menuOpen) return undefined;
 
@@ -251,7 +275,7 @@ function Layout({ children, title, subtitle }) {
       {subtitle && <p className="text-secondary mb-0">{subtitle}</p>}
     </div>
   );
-  const assistantFloatingButton = isAuthenticated && ['student', 'faculty'].includes(user?.role) && (
+  const assistantFloatingButton = isAuthenticated && ['student', 'faculty'].includes(user?.role) && location.pathname !== '/ai-assistant' && (
     <Link className="ai-assistant-floating-button" to="/ai-assistant" aria-label="Open AI Assistant">
       <NavigationIcon name="assistant" />
       <span>AI Assistant</span>

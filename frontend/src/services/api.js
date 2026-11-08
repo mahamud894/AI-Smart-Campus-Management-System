@@ -240,9 +240,9 @@ export const deleteTask = async (id) => {
   }
 };
 
-export const getNotices = async (page = 1) => {
+export const getNotices = async (page = 1, scope) => {
   try {
-    return await api.get('/notices', { params: { page } });
+    return await api.get('/notices', { params: scope ? { page, scope } : { page } });
   } catch (error) {
     throw createApiError(error);
   }

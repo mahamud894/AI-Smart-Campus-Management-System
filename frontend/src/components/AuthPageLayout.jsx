@@ -20,16 +20,16 @@ function AuthPageLayout({ eyebrow, title, subtitle, children }) {
           </p>
           <div className="auth-story-stats">
             <div>
-              <strong>8,400+</strong>
-              <span>Students</span>
+              <strong>3</strong>
+              <span>Role workspaces</span>
             </div>
             <div>
-              <strong>340+</strong>
-              <span>Faculty</span>
+              <strong>24/7</strong>
+              <span>AI study help</span>
             </div>
             <div>
-              <strong>92.2%</strong>
-              <span>Attendance</span>
+              <strong>1</strong>
+              <span>Unified platform</span>
             </div>
           </div>
         </div>

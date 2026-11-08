@@ -21,13 +21,18 @@ const parseRecommendation = (item, index) => {
     description: item.description || 'Recommended from your academic profile.',
     level: item.recommendation_type || 'Course Recommendation',
     credits: Number(item.course?.credit_hours || 0),
-    faculty: item.course?.faculty?.user?.name || item.course?.faculty || 'Academic Advisor',
+    faculty: item.course?.faculty?.user?.name || item.course?.faculty || (item.source === 'advisor' ? 'Academic Advisor' : ''),
     prerequisites: item.recommended_semester
       ? ['Recommended for Semester ' + item.recommended_semester]
       : item.source === 'advisor' ? ['Advisor review'] : ['Not currently enrolled'],
     score: Math.round(Number(item.score || 0)) || 80,
+    // Rule-based ranking only knows how close the course is to the student's semester,
+    // so it is shown as a fit level instead of a precise-looking percentage.
+    isRuleBased: item.source === 'rule_based',
   };
 };
+
+const fitLabel = (score) => (score >= 95 ? 'Best' : score >= 85 ? 'Good' : 'Fair');
 
 function CourseRecommendationsPage() {
   const { user } = useAuth();
@@ -73,7 +78,7 @@ function CourseRecommendationsPage() {
     try {
       await createTask({
         title: `Add ${course.code} - ${course.title} to study plan`,
-        description: `Study plan item with ${course.score}% match. Prerequisites: ${course.prerequisites.join(', ')}.`,
+        description: `Study plan item (${course.isRuleBased ? `${fitLabel(course.score)} fit` : `${course.score}% match`}). ${course.prerequisites.join(', ')}.`,
         assigned_to: user?.name || '',
         due_date: '',
         status: 'pending',
@@ -151,8 +156,8 @@ function CourseRecommendationsPage() {
                       <h4>{course.title}</h4>
                     </div>
                     <div className="course-score">
-                      <strong>{course.score}%</strong>
-                      <span>match</span>
+                      <strong>{course.isRuleBased ? fitLabel(course.score) : `${course.score}%`}</strong>
+                      <span>{course.isRuleBased ? 'fit' : 'match'}</span>
                     </div>
                   </div>
 
@@ -161,11 +166,11 @@ function CourseRecommendationsPage() {
                   <div className="course-meta-row">
                     <span className={`course-pill course-pill-${levelTone[course.level] || 'primary'}`}>{course.level}</span>
                     <span className="course-pill course-pill-primary">{course.credits} Credits</span>
-                    <span className="course-pill course-pill-violet">{course.faculty}</span>
+                    {course.faculty && <span className="course-pill course-pill-violet">{course.faculty}</span>}
                   </div>
 
                   <div className="course-prerequisites">
-                    <span>Prerequisites:</span>
+                    <span>Suggested timing:</span>
                     <div>
                       {course.prerequisites.map((item) => (
                         <small key={item}>{item}</small>

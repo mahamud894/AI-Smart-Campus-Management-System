@@ -46,7 +46,7 @@ RUN set -eux; \
         'CORS_ALLOWED_ORIGINS=https://ai-smart-campus-system-ce9i.onrender.com' \
         'CORS_MAX_AGE=3600' \
         'CORS_SUPPORTS_CREDENTIALS=false' \
-        'API_RATE_LIMIT=60' \
+        'API_RATE_LIMIT=180' \
         'AUTH_RATE_LIMIT=5' \
         'MAIL_MAILER=log' \
         'MAIL_FROM_ADDRESS=noreply@example.com' \

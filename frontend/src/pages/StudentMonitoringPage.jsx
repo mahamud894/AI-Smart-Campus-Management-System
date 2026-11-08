@@ -72,7 +72,9 @@ function StudentMonitoringPage() {
     }
   };
 
-  const trend = monitoring.charts.performance_trend || [];
+  // Months without any records come back as 0 and would draw a misleading drop to zero.
+  const trend = (monitoring.charts.performance_trend || [])
+    .filter((item) => Number(item.score) > 0 || Number(item.attendance) > 0);
   const distribution = monitoring.charts.score_distribution || [];
 
   if (loading) {
@@ -135,7 +137,7 @@ function StudentMonitoringPage() {
                 </div>
                 <span className="ai-source-badge">LIVE DATA</span>
               </div>
-              {trend.length > 0 ? (
+              {trend.length > 1 ? (
                 <div className="trend-chart" aria-label="Class performance trend">
                   <svg viewBox="0 0 640 260" role="img">
                     <path className="chart-grid" d="M40 35H615M40 90H615M40 145H615M40 200H615" />
@@ -155,7 +157,7 @@ function StudentMonitoringPage() {
                   </div>
                 </div>
               ) : (
-                <EmptyState title="No trend data yet" message="Add attendance and academic records to generate this chart." />
+                <EmptyState title="Not enough trend data yet" message="The trend appears once attendance and marks exist for at least two months." />
               )}
             </section>
           </div>

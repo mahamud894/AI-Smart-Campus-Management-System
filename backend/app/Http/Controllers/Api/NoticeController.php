@@ -12,7 +12,9 @@ use Illuminate\Validation\Rule;
 class NoticeController extends Controller {
  public function index(Request $request):JsonResponse {
   $query=Notice::with('author:id,name,role,department')->withExists(['reads as is_read'=>fn($q)=>$q->where('user_id',$request->user()->id)])->latest('publish_date')->latest('id');
-  if(!$this->isAdmin($request)){$this->applyAudienceFilter($query,$request->user());$query->whereNull('archived_at')->where(fn($q)=>$q->whereNull('expires_at')->orWhere('expires_at','>',now()));}
+  // Faculty "Manage Notices" asks for scope=sent: the notices they authored (incl. expired ones they may still edit).
+  if($request->input('scope')==='sent'&&$request->user()->role==='faculty'){$query->where('user_id',$request->user()->id);if(!$request->boolean('archived'))$query->whereNull('archived_at');}
+  elseif(!$this->isAdmin($request)){$this->applyAudienceFilter($query,$request->user());$query->whereNull('archived_at')->where(fn($q)=>$q->whereNull('expires_at')->orWhere('expires_at','>',now()));}
   elseif(!$request->boolean('archived'))$query->whereNull('archived_at');
   $unread=(clone $query)->whereDoesntHave('reads',fn($q)=>$q->where('user_id',$request->user()->id))->count();
   $paginator=$query->paginate(min(max((int)$request->input('per_page',15),1),50));

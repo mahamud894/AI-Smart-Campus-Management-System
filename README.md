@@ -4,6 +4,26 @@ An academic management and student-success platform for Northern University of B
 
 > This README documents the implemented AI-assisted workflows and the current project configuration. AI output is advisory and is not an official academic decision.
 
+## Screenshots
+
+| Student dashboard | Faculty dashboard |
+| --- | --- |
+| ![Student dashboard](screenshots/03-student-dashboard.png) | ![Faculty dashboard](screenshots/04-faculty-dashboard.png) |
+
+| Admin dashboard | Weekly class routine |
+| --- | --- |
+| ![Admin dashboard](screenshots/05-admin-dashboard.png) | ![Class routine](screenshots/11-class-routine.png) |
+
+| Student risk monitoring | AI Assistant |
+| --- | --- |
+| ![Student monitoring](screenshots/07-student-monitoring.png) | ![AI Assistant](screenshots/13-ai-assistant.png) |
+
+| Mobile dashboard | Mobile AI Assistant |
+| --- | --- |
+| <img src="screenshots/14-mobile-dashboard.png" width="300" alt="Mobile dashboard"> | <img src="screenshots/15-mobile-ai-assistant.png" width="300" alt="Mobile AI Assistant"> |
+
+All screenshots use the seeded demo accounts only. More captures are in [`screenshots/`](screenshots/).
+
 ## Implemented Features
 
 ### Student
@@ -213,8 +233,8 @@ ai-smart-campus-system/
 |-- backend/        Laravel API, models, services, migrations, seeders, and tests
 |-- frontend/       React/Vite application and frontend tests
 |-- database/       Database backup and recovery notes
-|-- documentation/  API, deployment, ER diagram, AI guide, and Postman files
-|-- screenshots/    Existing and planned submission evidence
+|-- screenshots/    Current UI captures (desktop + mobile) and legacy evidence
+|-- testing-evidence/ QA screenshots and test execution results
 |-- scripts/        Project utility scripts
 `-- README.md
 ```
@@ -269,7 +289,7 @@ The idempotent `CampusDemoSeeder` creates approved demo accounts, CSE courses, e
 | Faculty       | `faculty.cse@nubtkhulna.ac.bd` |
 | Student       | `student1@nubtkhulna.ac.bd`    |
 
-Set `CAMPUS_DEMO_PASSWORD` in `backend/.env`, then seed the demo accounts and data with:
+Set `CAMPUS_DEMO_PASSWORD` in `backend/.env` (wrap it in quotes if it contains `#`, otherwise the rest of the value is treated as a comment), then seed the demo accounts and data with:
 
 ```powershell
 cd backend
@@ -288,13 +308,13 @@ To demonstrate approval, register a new student or faculty account from the fron
 ### Current verification and demo checklist
 
 - [x] Frontend lint and production build pass.
-- [x] Frontend unit tests pass (10 tests in the current suite).
+- [x] Frontend unit tests pass (12 tests in the current suite).
 - [x] Browser E2E navigation test passes.
 - [x] Authentication feature tests pass (13 tests, 71 assertions).
 - [x] Campus database-operation and AI feature tests pass (23 tests, 119 assertions).
 - [x] Network, timeout, validation, authorization, AI provider, and rate-limit errors have user-facing handling.
 - [ ] Run `php artisan test` in CI or a local environment without a command timeout before final submission.
-- [ ] Capture current desktop and mobile screenshots using demo accounts only; redact student data and never expose tokens or API keys.
+- [x] Current desktop and mobile screenshots captured with demo accounts only (see [Screenshots](#screenshots)).
 - [ ] Verify configured Gemini/OpenAI credentials in the deployment environment before presenting live AI output.
 
 ## Verification
@@ -360,7 +380,6 @@ Review every screenshot for private student information, email addresses, phone 
 - Course prerequisites are not represented as a dedicated prerequisite graph; recommendations use available catalog, department, semester, enrollment, and advisor data.
 - Risk analysis is decision support and requires human review; it must not be used as the sole basis for academic or disciplinary action.
 - Automated provider tests can use mocked responses; live-provider checks consume real quota and should be used sparingly.
-- Standardized, privacy-reviewed Week 08 screenshots are still required.
 - Production deployments should disable debug mode, use non-root database credentials, configure HTTPS, protect environment secrets, and monitor/rate-limit provider usage.
 
 ## Security and Privacy
@@ -380,11 +399,11 @@ The repository includes a comprehensive Quality Assurance, Testing, Security Aud
 ### Automated Test Execution Commands
 
 ```bash
-# Backend PHPUnit Feature & Unit Tests (82 passed / 421 assertions)
+# Backend PHPUnit Feature & Unit Tests (85 passed / 431 assertions)
 cd backend
 php artisan test
 
-# Frontend Unit & Component Tests (10 passed)
+# Frontend Unit & Component Tests (12 passed)
 cd frontend
 npm test
 

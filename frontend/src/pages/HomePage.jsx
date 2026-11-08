@@ -7,34 +7,10 @@ import { getDashboardPath } from '../utils/routes';
 function HomePage() {
   const { isAuthenticated, user } = useAuth();
   const dashboardPath = getDashboardPath(user);
-  const overview = user?.role === 'faculty'
-    ? {
-        title: 'Teaching Overview',
-        leftLabel: 'Active Classes',
-        leftValue: '8',
-        rightLabel: 'Avg. Attendance',
-        rightValue: '83%',
-      }
-    : user?.role === 'admin'
-      ? {
-          title: 'System Overview',
-          leftLabel: 'Active Students',
-          leftValue: '8,400+',
-          rightLabel: 'System Alerts',
-          rightValue: '7',
-        }
-      : {
-          title: 'Academic Overview',
-          leftLabel: 'Average CGPA',
-          leftValue: '3.74',
-          rightLabel: 'Overall Attendance',
-          rightValue: '92.4%',
-        };
-
   const features = [
-    { title: 'Attendance Tracking', desc: 'Real-time updates on class participation and absence patterns.', icon: 'AT' },
-    { title: 'Academic Insights', desc: 'Clear view of marks, GPA trends, and performance summaries.', icon: 'AI' },
-    { title: 'AI Study Support', desc: 'Smart guidance and academic recommendations 24/7.', icon: 'SS' },
+    { title: 'Attendance Tracking', desc: 'Real-time updates on class participation and absence patterns.', icon: 'M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm4 11 2 2 4-4' },
+    { title: 'Academic Insights', desc: 'Clear view of marks, GPA trends, and performance summaries.', icon: 'M4 19V9m5 10V5m5 14v-7m5 7V3' },
+    { title: 'AI Study Support', desc: 'Smart guidance and academic recommendations 24/7.', icon: 'M12 3 10.7 7.1a5 5 0 0 1-3.2 3.2L3.5 12l4 1.7a5 5 0 0 1 3.2 3.2L12 21l1.7-4.1a5 5 0 0 1 3.2-3.2L21 12l-4.1-1.7a5 5 0 0 1-3.2-3.2L12 3Z' },
   ];
 
   return (
@@ -48,7 +24,7 @@ function HomePage() {
 
             <h1 className="display-4 mb-3" style={{ fontWeight: 800, color: '#1e293b', lineHeight: '1.2' }}>
               Northern University of <br />
-              <span style={{ color: '#2563eb' }}>Business & Technology | Khulna</span>
+              <span style={{ color: '#2563eb' }}>Business &amp; Technology, Khulna</span>
             </h1>
 
             <p className="lead text-secondary mb-5 fs-4">
@@ -66,8 +42,8 @@ function HomePage() {
 
             <div className="d-flex gap-4">
               <div>
-                <h3 className="fw-bold mb-0 text-dark">8,400+</h3>
-                <span className="text-muted small fw-semibold">Active Students</span>
+                <h3 className="fw-bold mb-0 text-dark">3</h3>
+                <span className="text-muted small fw-semibold">Student, faculty &amp; admin workspaces</span>
               </div>
               <div className="border-start ps-4 border-2">
                 <h3 className="fw-bold mb-0 text-dark">24/7</h3>
@@ -82,21 +58,12 @@ function HomePage() {
 
               {isAuthenticated && (
                 <div className="position-absolute bottom-0 start-0 w-100 p-3 p-lg-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }}>
-                  <div className="bg-white rounded-4 p-3 shadow-sm border-top border-primary border-4">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <span className="fw-bold text-dark fs-5">{overview.title}</span>
-                      <span className="badge bg-success text-white rounded-pill px-3">Live</span>
+                  <div className="bg-white rounded-4 p-3 shadow-sm border-top border-primary border-4 d-flex justify-content-between align-items-center gap-3">
+                    <div className="min-w-0">
+                      <small className="text-muted d-block fw-semibold">Signed in as</small>
+                      <span className="fw-bold text-dark">{user?.name || 'Campus member'}</span>
                     </div>
-                    <div className="d-flex justify-content-between">
-                      <div>
-                        <small className="text-muted d-block fw-semibold">{overview.leftLabel}</small>
-                        <span className="fs-4 fw-bold text-primary">{overview.leftValue}</span>
-                      </div>
-                      <div className="text-end">
-                        <small className="text-muted d-block fw-semibold">{overview.rightLabel}</small>
-                        <span className="fs-4 fw-bold text-primary">{overview.rightValue}</span>
-                      </div>
-                    </div>
+                    <Link to={dashboardPath} className="btn btn-primary rounded-pill px-3 flex-shrink-0">Open dashboard</Link>
                   </div>
                 </div>
               )}
@@ -109,7 +76,9 @@ function HomePage() {
         {features.map((feature) => (
           <div key={feature.title} className="col-md-4">
             <div className="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white" style={{ transition: 'transform 0.3s ease' }}>
-              <div className="home-feature-icon mb-3">{feature.icon}</div>
+              <div className="home-feature-icon mb-3" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={feature.icon} /></svg>
+              </div>
               <h4 className="fw-bold text-dark">{feature.title}</h4>
               <p className="text-secondary mb-0 fs-6">{feature.desc}</p>
             </div>
