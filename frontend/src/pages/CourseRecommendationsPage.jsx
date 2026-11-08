@@ -1,0 +1,201 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import Layout from '../components/Layout';
+import { useAuth } from '../auth/auth-context';
+import { EmptyState, LoadingState, StatusAlert } from '../components/Feedback';
+import { createTask, getRecommendations } from '../services/api';
+
+const levelTone = {
+  Advanced: 'danger',
+  Intermediate: 'warning',
+  Moderate: 'success',
+};
+
+const parseRecommendation = (item, index) => {
+  const titleParts = String(item.title || '').split('|').map((part) => part.trim());
+  const [code, courseTitle] = titleParts.length > 1 ? titleParts : [`REC ${index + 1}`, item.title || 'Recommended Course'];
+
+  return {
+    id: item.id || `recommendation-${index}`,
+    code,
+    title: courseTitle,
+    description: item.description || 'Recommended from your academic profile.',
+    level: item.recommendation_type || 'Course Recommendation',
+    credits: Number(item.course?.credit_hours || 0),
+    faculty: item.course?.faculty?.user?.name || item.course?.faculty || 'Academic Advisor',
+    prerequisites: item.recommended_semester
+      ? ['Recommended for Semester ' + item.recommended_semester]
+      : item.source === 'advisor' ? ['Advisor review'] : ['Not currently enrolled'],
+    score: Math.round(Number(item.score || 0)) || 80,
+  };
+};
+
+function CourseRecommendationsPage() {
+  const { user } = useAuth();
+  const [recommendations, setRecommendations] = useState([]);
+  const [recommendationMeta, setRecommendationMeta] = useState({ source: '', model: null, message: null });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [feedback, setFeedback] = useState(null);
+  const [addingCourseId, setAddingCourseId] = useState('');
+  const [addedCourses, setAddedCourses] = useState([]);
+
+  const fetchRecommendations = useCallback(async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await getRecommendations();
+      setRecommendations(response.data.data || []);
+      setRecommendationMeta({
+        source: response.data.source || '',
+        model: response.data.model || null,
+        message: response.data.message || null,
+      });
+    } catch (requestError) {
+      setError(requestError.message || 'Course recommendations could not be loaded.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRecommendations();
+  }, [fetchRecommendations]);
+
+  const courses = useMemo(() => {
+    return recommendations.map(parseRecommendation);
+  }, [recommendations]);
+
+  const handleAddCourse = async (course) => {
+    setAddingCourseId(course.id);
+    setFeedback(null);
+
+    try {
+      await createTask({
+        title: `Add ${course.code} - ${course.title} to study plan`,
+        description: `Study plan item with ${course.score}% match. Prerequisites: ${course.prerequisites.join(', ')}.`,
+        assigned_to: user?.name || '',
+        due_date: '',
+        status: 'pending',
+        priority: 'medium',
+      });
+
+      setAddedCourses((currentCourses) => [...new Set([...currentCourses, course.id])]);
+      setFeedback({
+        variant: 'success',
+        message: 'Course added to your study plan.',
+      });
+    } catch (requestError) {
+      setFeedback({
+        variant: 'danger',
+        message: requestError.message || 'This course could not be added right now.',
+      });
+    } finally {
+      setAddingCourseId('');
+    }
+  };
+
+  if (loading) {
+    return (
+      <Layout title="Course Recommendations" subtitle="Database-backed course recommendations based on your academic profile.">
+        <LoadingState message="Loading course recommendations..." />
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout title="Course Recommendations" subtitle="Database-backed course recommendations based on your academic profile.">
+      {error && (
+        <StatusAlert
+          variant="warning"
+          message={`${error} No sample data is shown.`}
+          actionLabel="Try again"
+          onAction={fetchRecommendations}
+          onDismiss={() => setError('')}
+        />
+      )}
+      {feedback && (
+        <StatusAlert
+          variant={feedback.variant}
+          message={feedback.message}
+          onDismiss={() => setFeedback(null)}
+        />
+      )}
+
+      <section className="recommendation-analysis mb-4">
+        <div className="recommendation-analysis-icon" aria-hidden="true">SR</div>
+        <div>
+          <h5>Course recommendations for {user?.name || 'Campus User'}</h5>
+          <p>
+            {recommendationMeta.source === 'ai'
+              ? 'Gemini personalized these courses from your verified profile and eligible course catalog.'
+              : recommendationMeta.source === 'advisor'
+                ? 'These recommendations were created by an authorized academic advisor.'
+                : 'Smart matching ranked active courses using your department, semester and enrollment status.'}
+          </p>
+        </div>
+      </section>
+
+      {courses.length > 0 ? (
+        <div className="row g-4">
+          {courses.map((course) => {
+            const isAdded = addedCourses.includes(course.id);
+            const isAdding = addingCourseId === course.id;
+
+            return (
+              <div key={course.id} className="col-xl-6">
+                <article className="course-recommendation-card h-100">
+                  <div className="d-flex align-items-start justify-content-between gap-3 mb-3">
+                    <div className="min-w-0">
+                      <span className="course-code">{course.code}</span>
+                      <h4>{course.title}</h4>
+                    </div>
+                    <div className="course-score">
+                      <strong>{course.score}%</strong>
+                      <span>match</span>
+                    </div>
+                  </div>
+
+                  <p className="course-reason">{course.description}</p>
+
+                  <div className="course-meta-row">
+                    <span className={`course-pill course-pill-${levelTone[course.level] || 'primary'}`}>{course.level}</span>
+                    <span className="course-pill course-pill-primary">{course.credits} Credits</span>
+                    <span className="course-pill course-pill-violet">{course.faculty}</span>
+                  </div>
+
+                  <div className="course-prerequisites">
+                    <span>Prerequisites:</span>
+                    <div>
+                      {course.prerequisites.map((item) => (
+                        <small key={item}>{item}</small>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={`btn w-100 ${isAdded ? 'btn-success' : 'btn-outline-primary'}`}
+                    onClick={() => handleAddCourse(course)}
+                    disabled={isAdding || isAdded}
+                    aria-busy={isAdding}
+                  >
+                    {isAdding && <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />}
+                    {isAdded ? 'Added to Study Plan' : isAdding ? 'Adding...' : 'Add to Study Plan'}
+                  </button>
+                </article>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <EmptyState
+          title="No course recommendations yet"
+          message={recommendationMeta.message || 'No eligible courses are available right now. Check your department, semester, or enrollment status.'}
+        />
+      )}
+    </Layout>
+  );
+}
+
+export default CourseRecommendationsPage;
